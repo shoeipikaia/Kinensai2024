@@ -3,21 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>『The BACHELOR NISHI』スケジュール</title>
+    <title>The BACHELOR NISHI</title>
     <link rel="stylesheet" href="styles.css">
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
     <div class="container">
         <h1>The BACHELOR NISHI</h1>
+        
         <div id="next-performance">
-            <h2>次回公演までの時間</h2>
+            <h2>次回公演まで</h2>
             <div id="countdown"></div>
-            <p id="next-show-time"></p>
+            <div id="next-show-time"></div>
         </div>
+
         <div id="schedule">
-            <h2>公演スケジュール</h2>
+            <h2>本日の公演スケジュール</h2>
             <div id="performance-list"></div>
+        </div>
+
+        <div id="share-buttons">
+            <button id="line-share-btn">LINEで共有</button>
+            <button id="copy-link-btn">リンクをコピー</button>
         </div>
     </div>
     <script src="script.js"></script>

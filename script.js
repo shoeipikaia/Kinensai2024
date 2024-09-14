@@ -1,6 +1,6 @@
 const performances = [
-    { day: 1, date: '9/15', times: ['09:30', '11:00', '13:00', '15:00'] },
-    { day: 2, date: '9/16', times: ['09:30', '11:00', '13:00', '15:00'] },
+    { date: '9/15', times: ['09:30', '11:00', '13:00', '15:00'] },
+    { date: '9/16', times: ['09:30', '11:00', '13:00', '15:00'] },
 ];
 
 function updateCountdown() {
@@ -12,7 +12,7 @@ function updateCountdown() {
             const [hours, minutes] = time.split(':').map(Number);
             const performanceTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hours, minutes);
             if (performanceTime > now) {
-                nextPerformance = { day: day.day, date: day.date, time: performanceTime };
+                nextPerformance = { date: day.date, time: performanceTime };
                 break;
             }
         }
@@ -38,25 +38,59 @@ function updateCountdown() {
 
 function displaySchedule() {
     const scheduleElement = document.getElementById('performance-list');
+    scheduleElement.innerHTML = '';
     
-    performances.forEach(day => {
-        const dayElement = document.createElement('div');
-        dayElement.className = 'performance-day';
-        
-        dayElement.innerHTML = `
-            <h3>${day.date}</h3>
-            <ul>
-                ${day.times.map(time => `<li>${time}</li>`).join('')}
-            </ul>
-        `;
-        
-        scheduleElement.appendChild(dayElement);
+    const now = new Date();
+    const today = performances.find(day => day.date === `${now.getMonth() + 1}/${now.getDate()}`);
+    
+    if (today) {
+        today.times.forEach(time => {
+            const [hours, minutes] = time.split(':').map(Number);
+            const performanceTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hours, minutes);
+            const isPast = performanceTime < now;
+            
+            const timeElement = document.createElement('div');
+            timeElement.className = `performance-time ${isPast ? 'past-performance' : ''}`;
+            timeElement.innerHTML = `
+                <span class="time">${time}</span>
+                <span class="status">${isPast ? '終了' : '予定'}</span>
+            `;
+            
+            scheduleElement.appendChild(timeElement);
+        });
+    } else {
+        scheduleElement.innerHTML = '<p>本日の公演はありません。</p>';
+    }
+}
+
+function setupShareButtons() {
+    const lineShareBtn = document.getElementById('line-share-btn');
+    const copyLinkBtn = document.getElementById('copy-link-btn');
+
+    lineShareBtn.addEventListener('click', shareOnLINE);
+    copyLinkBtn.addEventListener('click', copyLinkToClipboard);
+}
+
+function shareOnLINE() {
+    const shareText = encodeURIComponent("文化祭劇『The BACHELOR NISHI』の公演スケジュールをチェックしよう！");
+    const shareURL = encodeURIComponent(window.location.href);
+    const lineURL = `https://line.me/R/msg/text/?${shareText}%0D%0A${shareURL}`;
+    window.open(lineURL, '_blank');
+}
+
+function copyLinkToClipboard() {
+    navigator.clipboard.writeText(window.location.href).then(() => {
+        alert('リンクがクリップボードにコピーされました！');
+    }).catch(err => {
+        console.error('クリップボードへのコピーに失敗しました', err);
     });
 }
 
-// 初期表示
-displaySchedule();
-updateCountdown();
+function init() {
+    displaySchedule();
+    updateCountdown();
+    setupShareButtons();
+    setInterval(updateCountdown, 1000);
+}
 
-// 1秒ごとにカウントダウンを更新
-setInterval(updateCountdown, 1000);
+init();
