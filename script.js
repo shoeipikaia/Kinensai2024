@@ -1,28 +1,36 @@
 const performances = [
-    { date: '9/15', times: ['09:30', '11:00', '13:00', '15:00'] },
+    { date: '9/15', times: ['09:40', '11:00', '13:00', '15:00'] },
     { date: '9/16', times: ['09:30', '11:00', '13:00', '15:00'] },
 ];
 
 function updateCountdown() {
     const now = new Date();
     let nextPerformance = null;
+    let currentPerformance = null;
 
     for (const day of performances) {
         for (const time of day.times) {
             const [hours, minutes] = time.split(':').map(Number);
             const performanceTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hours, minutes);
-            if (performanceTime > now) {
-                nextPerformance = { date: day.date, time: performanceTime };
+            const endTime = new Date(performanceTime.getTime() + 30 * 60000); // 30分後
+
+            if (now >= performanceTime && now < endTime) {
+                currentPerformance = { date: day.date, time: performanceTime };
                 break;
+            } else if (performanceTime > now && !nextPerformance) {
+                nextPerformance = { date: day.date, time: performanceTime };
             }
         }
-        if (nextPerformance) break;
+        if (currentPerformance) break;
     }
 
     const countdownElement = document.getElementById('countdown');
     const nextShowTimeElement = document.getElementById('next-show-time');
 
-    if (nextPerformance) {
+    if (currentPerformance) {
+        countdownElement.textContent = '公演中';
+        nextShowTimeElement.textContent = `公演時間: ${currentPerformance.time.toTimeString().slice(0, 5)} ~ ${new Date(currentPerformance.time.getTime() + 30 * 60000).toTimeString().slice(0, 5)}`;
+    } else if (nextPerformance) {
         const timeDiff = nextPerformance.time - now;
         const hours = Math.floor(timeDiff / (1000 * 60 * 60));
         const minutes = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60));
@@ -33,6 +41,17 @@ function updateCountdown() {
     } else {
         countdownElement.textContent = '本日の公演は終了しました';
         nextShowTimeElement.textContent = '';
+    }
+}
+
+function getPerformanceStatus(performanceTime, now) {
+    const endTime = new Date(performanceTime.getTime() + 30 * 60000); // 30分後
+    if (now < performanceTime) {
+        return '予定';
+    } else if (now >= performanceTime && now < endTime) {
+        return '公演中';
+    } else {
+        return '終了';
     }
 }
 
@@ -47,13 +66,13 @@ function displaySchedule() {
         today.times.forEach(time => {
             const [hours, minutes] = time.split(':').map(Number);
             const performanceTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hours, minutes);
-            const isPast = performanceTime < now;
+            const status = getPerformanceStatus(performanceTime, now);
             
             const timeElement = document.createElement('div');
-            timeElement.className = `performance-time ${isPast ? 'past-performance' : ''}`;
+            timeElement.className = `performance-time ${status === '終了' ? 'past-performance' : ''}`;
             timeElement.innerHTML = `
                 <span class="time">${time}</span>
-                <span class="status">${isPast ? '終了' : '予定'}</span>
+                <span class="status ${status}">${status}</span>
             `;
             
             scheduleElement.appendChild(timeElement);
@@ -90,7 +109,10 @@ function init() {
     displaySchedule();
     updateCountdown();
     setupShareButtons();
-    setInterval(updateCountdown, 1000);
+    setInterval(() => {
+        updateCountdown();
+        displaySchedule();
+    }, 1000);
 }
 
 init();

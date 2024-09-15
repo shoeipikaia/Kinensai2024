@@ -6,6 +6,9 @@
     --background-color: #F7F8FC;
     --card-background: #FFFFFF;
     --accent-color: #1AB188;
+    --scheduled-color: #3498db;
+    --ongoing-color: #e74c3c;
+    --finished-color: #95a5a6;
 }
 
 body {
@@ -94,10 +97,6 @@ h2 {
     box-shadow: 0 5px 15px rgba(0,0,0,0.1);
 }
 
-.performance-time.past-performance {
-    opacity: 0.6;
-}
-
 .time {
     font-size: 1.2rem;
     font-weight: 700;
@@ -108,8 +107,20 @@ h2 {
     font-size: 0.9rem;
     padding: 0.3rem 0.6rem;
     border-radius: 20px;
-    background-color: var(--accent-color);
     color: white;
+    font-weight: bold;
+}
+
+.status.予定 {
+    background-color: var(--scheduled-color);
+}
+
+.status.公演中 {
+    background-color: var(--ongoing-color);
+}
+
+.status.終了 {
+    background-color: var(--finished-color);
 }
 
 #share-buttons {
@@ -162,5 +173,25 @@ h2 {
 
     #countdown {
         font-size: 2.5rem;
+    }
+}
+
+/* 既存のCSSに以下を追加 */
+
+#countdown.ongoing {
+    color: var(--ongoing-color);
+    font-size: 3.5rem;
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+    100% {
+        transform: scale(1);
     }
 }
